@@ -1,0 +1,35 @@
+﻿@model TodoViewModel
+@{
+    ViewData["Title"] = "Add Todo";
+}
+
+<h2>New Todo</h2>
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-controller="Home" asp-action="Add" method="post">
+    <div class="form-group">
+        <label asp-for="CurrentTodo.Description"></label>
+        <input type="text" asp-for="CurrentTodo.Description" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="CurrentTodo.CategoryId"></label>
+        <select asp-for="CurrentTodo.CategoryId" class="form-control"
+                asp-items="@(new SelectList(Model.Categories, "CategoryId","Name"))">
+            <option value=""></option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="CurrentTodo.DueDate"></label>
+        <input type="text" asp-for="CurrentTodo.DueDate" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="CurrentTodo.StatusId"></label>
+        <select asp-for="CurrentTodo.StatusId" class="form-control"
+                asp-items="@(new SelectList(Model.Statuses, "StatusId","Name"))">
+            <option value=""></option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
