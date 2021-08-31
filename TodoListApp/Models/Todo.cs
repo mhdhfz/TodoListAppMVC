@@ -22,7 +22,7 @@ namespace TodoListApp.Models
 		public string CategoryId { get; set; }
 		public Category Category { get; set; }
 
-		[Required(ErrorMessage = "Please select a status")]
+		[Required(ErrorMessage = "Please select a status")] 
 		public string StatusId { get; set; }
 		public Status Status { get; set; }
 
