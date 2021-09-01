@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TodoListApp.Data;
+using TodoListApp.Services;
 
 namespace TodoListApp
 {
@@ -31,6 +32,7 @@ namespace TodoListApp
 				options.AppendTrailingSlash = true;
 			});
 			services.AddControllersWithViews();
+			services.AddScoped<TodoService>();
 			services.AddDbContext<ApplicationDbContext>(options =>
 				options.UseSqlServer(Configuration.GetConnectionString("TodoConnection")));
 		}

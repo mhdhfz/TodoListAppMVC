@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TodoListApp.Data;
 using TodoListApp.Models;
+using TodoListApp.Services;
 using TodoListApp.Utilities;
 using TodoListApp.ViewModels;
 
@@ -15,100 +16,45 @@ namespace TodoListApp.Controllers
 {
 	public class HomeController : Controller
 	{
-		private readonly ApplicationDbContext _context;
+		private readonly TodoService _todoService;
 
-		public HomeController(ApplicationDbContext context) => _context = context;
+		public HomeController(TodoService todoService)
+		{
+			_todoService = todoService;
+		}
 
 		public IActionResult Index(string id)
 		{
-			var model = new TodoViewModel
-			{
-				Filters = new Filters(id),
-				Categories = _context.Categories.ToList(),
-				Statuses = _context.Statuses.ToList(),
-				DueFilters = Filters.DueFilterValues
-			};
-
-			IQueryable<Todo> query = _context.Todos.Include(c => c.Category).Include(s => s.Status);
-
-			if (model.Filters.HasCategory)
-				query = query.Where(t => t.CategoryId == model.Filters.CategoryId);
-
-			if (model.Filters.HasStatus)
-				query = query.Where(t => t.StatusId == model.Filters.StatusId);
-
-			if (model.Filters.HasDue)
-			{
-				var today = DateTime.Today;
-				if (model.Filters.IsPast)
-				{
-					query = query.Where(t => t.DueDate < today);
-				}
-				else if (model.Filters.IsFuture)
-				{
-					query = query.Where(t => t.DueDate > today);
-				}
-				else if (model.Filters.IsToday)
-				{
-					query = query.Where(t => t.DueDate == today);
-				}
-			}
-
-			var todos = query.OrderBy(t => t.DueDate).ToList();
-			model.Todos = todos;
-
+			TodoViewModel model = _todoService.ListTodos(id);
 			return View(model);
 		}
-
 
 		[HttpGet]
 		public IActionResult Add()
 		{
-			var model = new TodoViewModel
-			{
-				Categories = _context.Categories.ToList(),
-				Statuses = _context.Statuses.ToList()
-			};
-
+			TodoViewModel model = _todoService.GetTodo();
 			return View(model);
 		}
-
 
 		[HttpPost]
 		public IActionResult Add(TodoViewModel model)
 		{
 			if (ModelState.IsValid)
 			{
-				_context.Todos.Add(model.CurrentTodo);
-				_context.SaveChanges();
+				_todoService.AddTodo(model);
 				return RedirectToAction(nameof(Index));
 			}
 
-			model.Categories = _context.Categories.ToList();
-			model.Statuses = _context.Statuses.ToList();
+			_todoService.GetCategoriesAndStatuses(model);
 			return View(model);
 		}
-
 
 		[HttpPost]
 		public IActionResult EditDelete([FromRoute] string id, Todo selected)
 		{
-			if (selected.StatusId == null)
-			{
-				_context.Todos.Remove(selected);
-			}
-			else
-			{
-				string newStatusId = selected.StatusId;
-				selected = _context.Todos.Find(selected.Id);
-				selected.StatusId = newStatusId;
-				_context.Todos.Update(selected);
-			}
-			_context.SaveChanges();
-
-			return RedirectToAction("Index","Home", new { ID = id });
+			_todoService.EditDeleteTodo(selected);
+			return RedirectToAction("Index", "Home", new { ID = id });
 		}
-
 
 		[HttpPost]
 		public IActionResult Filter(string[] filter)

@@ -41,7 +41,7 @@
                     <th>Category</th>
                     <th>Due Date</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th class="w-25">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -53,7 +53,7 @@
                         <td>@todo.Category.Name</td>
                         <td class="@overdue">@todo.DueDate?.ToShortDateString()</td>
                         <td class="@overdue">@todo.Status.Name</td>
-                        <td>
+                        <td class="text-center">
                             <form asp-controller="Home"
                                   asp-action="EditDelete"
                                   asp-route-id="@Model.Filters.FilterString"
